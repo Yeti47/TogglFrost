@@ -52,7 +52,7 @@
 
   <!-- Parameters used by tests at runtime -->
   <TestRunParameters>
-
+<!-- TEST-->
   </TestRunParameters>
 
   <!-- Adapter Specific sections -->
