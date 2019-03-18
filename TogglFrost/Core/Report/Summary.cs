@@ -26,22 +26,38 @@ namespace TogglFrost.Core.Report {
 
         public string ID { get; set; }
 
+        [JsonIgnore]
         public string Title { get; set; }
 
+        [JsonConverter(typeof(TimeSpanConverter))]
         public TimeSpan Time { get; set; }
         
+        [JsonIgnore]
         public string Currency { get; set; }
 
+        [JsonIgnore]
         public double Sum { get; set; }
+
+        [JsonIgnore]
         public double Rate { get; set; }
 
     }
 
     public class TimeSpanConverter : JsonConverter {
 
-        public override bool CanConvert(Type objectType) => throw new NotImplementedException();
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) => throw new NotImplementedException();
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) => throw new NotImplementedException();
+        public override bool CanConvert(Type objectType) => true;
+
+        public override bool CanRead => true;
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
+
+            return TimeSpan.FromMilliseconds(reader.ReadAsInt32().GetValueOrDefault());
+
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
+            throw new NotImplementedException();
+        }
     }
 
 }

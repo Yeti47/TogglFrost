@@ -10,6 +10,10 @@ namespace TogglFrost.Core {
 
         WorkspaceCache LoadWorkspaceCache();
 
+        WorkspaceCacheItem LoadWorkspaceCacheItemByName(string name);
+
+        WorkspaceCacheItem LoadWorkspaceCacheItemById(string id);
+
     }
     
 }

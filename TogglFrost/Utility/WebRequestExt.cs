@@ -54,17 +54,20 @@ namespace TogglFrost.Utility {
             try {
 
                 using (HttpWebResponse response = webRequest.GetResponse() as HttpWebResponse) {
+                    content = ReadResponseContent(response);
 
-                    using(Stream stream = response.GetResponseStream()) {
+                }
 
-                        using(StreamReader reader = new StreamReader(stream)) {
+            }
+            catch(WebException webEx) {
 
-                            content = reader.ReadToEnd();
-
-                        }
-
-                    }
-
+                try {
+                    content = ReadResponseContent(webEx.Response as HttpWebResponse);
+                    webEx.Response.Close();
+                    return new ReadHttpResponseResult(content, true);
+                }
+                catch(Exception ex) {
+                    return new ReadHttpResponseResult(ex);
                 }
 
             }
@@ -78,6 +81,20 @@ namespace TogglFrost.Utility {
 
         }
 
+        private static string ReadResponseContent(HttpWebResponse response) {
+            string content;
+            using (Stream stream = response.GetResponseStream()) {
+
+                using (StreamReader reader = new StreamReader(stream)) {
+
+                    content = reader.ReadToEnd();
+
+                }
+
+            }
+
+            return content;
+        }
     }
 
 }

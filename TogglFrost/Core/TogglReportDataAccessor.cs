@@ -25,9 +25,14 @@ namespace TogglFrost.Core {
 
         }
 
-        public Summary GetSummary(string workspaceId, DateTime from, DateTime to) {
+        public Summary GetSummary(string workspaceName, DateTime from, DateTime to) {
 
-            string url = SUMMARY_URL + "?" + AuthenticationQuery + $"&workspace_id={workspaceId}&since={from.ToString("yyyy-MM-dd")}&until={to.ToString("yyyy-MM-dd")}";
+            WorkspaceCacheItem workspaceCacheItem = UpdateWorkspaceCache(workspaceName);
+
+            if (workspaceCacheItem == null)
+                return null;
+
+            string url = SUMMARY_URL + "?" + AuthenticationQuery + $"&workspace_id={workspaceCacheItem.ID}&since={from.ToString("yyyy-MM-dd")}&until={to.ToString("yyyy-MM-dd")}";
 
             WebRequest webRequest = CreateRequest(url);
 
@@ -41,9 +46,12 @@ namespace TogglFrost.Core {
 
                 Summary summary = new Summary();
 
-                foreach(JToken token in jArr) {
+                foreach (JToken token in jArr) {
 
-                    TimeEntry entry = CreateTimeEnty(token);
+                    //TimeEntry entry = CreateTimeEnty(token);
+                    //summary.AddTimeEntry(entry);
+
+                    TimeEntry entry = token.ToObject<TimeEntry>();
                     summary.AddTimeEntry(entry);
 
                 }
@@ -52,6 +60,29 @@ namespace TogglFrost.Core {
             }
 
             return null;
+
+        }
+
+        private WorkspaceCacheItem UpdateWorkspaceCache(string workspaceName) {
+
+            if (string.IsNullOrWhiteSpace(workspaceName))
+                throw new ArgumentNullException(nameof(workspaceName));
+
+            if (_workspaceCache.Find(workspaceName) is WorkspaceCacheItem item)
+                return item;
+
+            WorkspaceCacheItem cacheItem = null;
+
+            if(WorkspaceProvider != null) {
+
+                cacheItem = WorkspaceProvider.LoadWorkspaceCacheItemByName(workspaceName);
+
+                if (cacheItem != null)
+                    _workspaceCache.Add(cacheItem);
+
+            }
+
+            return cacheItem;
 
         }
 

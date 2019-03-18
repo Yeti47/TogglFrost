@@ -9,16 +9,23 @@ namespace TogglFrost.Test {
     [TestClass]
     public class TogglGeneralDataAccessorTest {
 
+        private TestAuthenticationSettings _testCredentials;
+
         public TestContext TestContext { get; set; }
 
-        private string ApiToken => TestContext.Properties["apiToken"]?.ToString();
+        private string ApiToken => _testCredentials.ApiToken;
+        private string UserAgent => _testCredentials.UserAgent;
+        private string DefaultWorkspaceName => _testCredentials.DefaultWorkspaceName;
+
         private uint GeneralApiVersion => Convert.ToUInt32(TestContext.Properties["generalApiVersion"]);
         private uint ReportApiVersion => Convert.ToUInt32(TestContext.Properties["reportApiVersion"]);
-        private string UserAgent => TestContext.Properties["userAgent"]?.ToString();
-        private string DefaultWorkspaceId => TestContext.Properties["defaultWorkspaceId"]?.ToString();
 
         [TestInitialize]
-        public void SetupTest() { }
+        public void SetupTest() {
+
+            _testCredentials = TestAuthenticationSettings.Load(TestContext.Properties["testCredPath"].ToString());
+
+        }
 
         [TestMethod]
         public void LoadWorkspaceCacheReturnsOneItem() {
@@ -27,18 +34,18 @@ namespace TogglFrost.Test {
 
             WorkspaceCache cache = dataAccessor.LoadWorkspaceCache();
 
-            Assert.IsTrue(cache != null && cache.Any(c => c.ID == DefaultWorkspaceId));
+            Assert.IsTrue(cache != null && cache.Any(c => c.ID == DefaultWorkspaceName));
 
         }
 
         [TestMethod]
         public void LoadDefaultWorkspaceCacheItem() {
 
-            TogglGeneralDataAccessor dataAccessor = new TogglGeneralDataAccessor(UserAgent, ApiToken, (uint)GeneralApiVersion);
+            TogglGeneralDataAccessor dataAccessor = new TogglGeneralDataAccessor(UserAgent, ApiToken, GeneralApiVersion);
 
-            string workspaceId = DefaultWorkspaceId;
+            string workspaceId = DefaultWorkspaceName;
 
-            WorkspaceCacheItem cacheItem = dataAccessor.LoadWorkspaceCacheItem(workspaceId);
+            WorkspaceCacheItem cacheItem = dataAccessor.LoadWorkspaceCacheItemById(workspaceId);
 
             Assert.IsTrue(cacheItem != null && cacheItem.ID ==  workspaceId);
 
@@ -47,13 +54,13 @@ namespace TogglFrost.Test {
         [TestMethod]
         public void GetSummary() {
 
-            TogglGeneralDataAccessor dataAccessor = new TogglGeneralDataAccessor(UserAgent, ApiToken, (uint)GeneralApiVersion);
+            TogglGeneralDataAccessor dataAccessor = new TogglGeneralDataAccessor(UserAgent, ApiToken, GeneralApiVersion);
 
-            string workspaceId = DefaultWorkspaceId;
+            string workspaceName = DefaultWorkspaceName;
 
             TogglReportDataAccessor reportDataAccessor = new TogglReportDataAccessor(UserAgent, ApiToken, ReportApiVersion, dataAccessor);
 
-            Summary summary = reportDataAccessor.GetSummary(workspaceId, DateTime.Now.AddDays(-7), DateTime.Now);
+            Summary summary = reportDataAccessor.GetSummary(workspaceName, DateTime.Now.AddDays(-7), DateTime.Now);
 
             string t = "";
 

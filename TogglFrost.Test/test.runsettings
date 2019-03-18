@@ -52,7 +52,9 @@
 
   <!-- Parameters used by tests at runtime -->
   <TestRunParameters>
-<!-- TEST-->
+    <Parameter name="generalApiVersion" value="8" />
+    <Parameter name="reportApiVersion" value="2" />
+    <Parameter name="testCredPath" value="C:\Test\testCred.txt" />
   </TestRunParameters>
 
   <!-- Adapter Specific sections -->

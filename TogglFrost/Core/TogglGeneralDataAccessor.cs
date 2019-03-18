@@ -3,6 +3,7 @@ using TogglFrost.Utility;
 using Newtonsoft.Json;
 using System.Linq;
 using Newtonsoft.Json.Linq;
+using System;
 
 namespace TogglFrost.Core {
 
@@ -36,7 +37,7 @@ namespace TogglFrost.Core {
 
         }
 
-        public WorkspaceCacheItem LoadWorkspaceCacheItem(string id) {
+        public WorkspaceCacheItem LoadWorkspaceCacheItemById(string id) {
 
             WorkspaceCacheItem item = null;
 
@@ -50,6 +51,27 @@ namespace TogglFrost.Core {
 
                 item = jObj["data"].ToObject<WorkspaceCacheItem>();
 
+            }
+
+            return item;
+            
+        }
+
+        public WorkspaceCacheItem LoadWorkspaceCacheItemByName(string name) {
+
+            WorkspaceCacheItem item = null;
+
+            WebRequest webRequest = CreateRequest(WORKSPACE_URL + $"?name={Uri.EscapeUriString(name)}");
+
+            ReadHttpResponseResult result = webRequest.ReadHttpResponse();
+
+            if (result != null && !result.HasError) {
+
+                JArray jArr = JArray.Parse(result.Content);
+
+                if(jArr.Any())
+                    item = jArr.First().ToObject<WorkspaceCacheItem>();
+                
             }
 
             return item;
