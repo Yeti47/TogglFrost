@@ -15,8 +15,6 @@ namespace TogglFrost.Core {
         protected const string AUTHENTICATION_PASSWORD = "api_token";
         protected const string CONTENT_TYPE_JSON = "application/json";
 
-        protected const string USER_AGENT_PARAM_NAME = "user_agent";
-
         private const string API_TOKEN_MISSING_EXCEPTION_MSG = "The operation cannot be performed since no API token has been provided.";
 
         public uint ApiVerson { get; set; }
@@ -27,7 +25,7 @@ namespace TogglFrost.Core {
         
         public abstract string BaseUrl { get; }
 
-        public virtual string AuthenticationQuery => string.IsNullOrEmpty(UserAgent) ? string.Empty : $"{USER_AGENT_PARAM_NAME}={Uri.EscapeUriString(UserAgent)}";
+        protected virtual IRequestParameters AuthenticationQuery => new TogglRequestParameters(UserAgent);
 
         protected TogglDataAccessor(string userAgent, string apiToken, uint apiVersion) {
 
@@ -45,14 +43,18 @@ namespace TogglFrost.Core {
 
         }
 
-        protected virtual WebRequest CreateRequest(string url = null, HttpRequestMethod requestMethod = HttpRequestMethod.GET) {
+        protected virtual WebRequest CreateRequest(string url = null, IRequestParameters requestParameters = null,  HttpRequestMethod requestMethod = HttpRequestMethod.GET) {
 
             if (string.IsNullOrWhiteSpace(ApiToken))
                 throw new InvalidOperationException(API_TOKEN_MISSING_EXCEPTION_MSG);
 
             url = url?.Trim(new char[] { ' ', '/' }) ?? string.Empty;
 
-            WebRequest request = WebRequest.Create(BaseUrl + "/" + url);
+            requestParameters = requestParameters ?? AuthenticationQuery;
+
+            string fullUrl = requestParameters.CreateUrl(BaseUrl + "/" + url);
+            
+            WebRequest request = WebRequest.Create(fullUrl);
             request.ContentType = CONTENT_TYPE_JSON;
             request.PreAuthenticate = true;
             request.Method = requestMethod.ToString();

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
@@ -8,56 +7,29 @@ using Newtonsoft.Json;
 
 namespace TogglFrost.Core.Report {
 
-    public class Summary {
+    public class Summary : Report {
 
-        private readonly List<TimeEntry> _timeEntries = new List<TimeEntry>();
+        #region Fields
 
-        public IEnumerable<TimeEntry> TimeEntries => new ReadOnlyCollection<TimeEntry>(_timeEntries);
+        #endregion
 
-        public void AddTimeEntry(TimeEntry timeEntry) {
-            
-            _timeEntries.Add(timeEntry);
+        #region Props
 
-        }
+        public override ReadOnlyCurrencyTotalMap TotalCurrencies => throw new NotImplementedException();
 
-    }
+        public override long TotalGrand => throw new NotImplementedException();
 
-    public class TimeEntry {
+        public override long TotalBillable => throw new NotImplementedException();
 
-        public string ID { get; set; }
+        #endregion
 
-        [JsonIgnore]
-        public string Title { get; set; }
+        #region Ctors
 
-        [JsonConverter(typeof(TimeSpanConverter))]
-        public TimeSpan Time { get; set; }
-        
-        [JsonIgnore]
-        public string Currency { get; set; }
+        #endregion
 
-        [JsonIgnore]
-        public double Sum { get; set; }
+        #region Methods
 
-        [JsonIgnore]
-        public double Rate { get; set; }
-
-    }
-
-    public class TimeSpanConverter : JsonConverter {
-
-        public override bool CanConvert(Type objectType) => true;
-
-        public override bool CanRead => true;
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer) {
-
-            return TimeSpan.FromMilliseconds(reader.ReadAsInt32().GetValueOrDefault());
-
-        }
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer) {
-            throw new NotImplementedException();
-        }
+        #endregion
     }
 
 }

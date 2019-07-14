@@ -6,40 +6,27 @@ using System.Threading.Tasks;
 
 namespace TogglFrost.Core.Report.Dto {
 
-    public class TitleDto {
+    internal class TitleDto {
         
         public string Project { get; set; }
         public string Client { get; set; }
         public string User { get; set; }
 
-        public TitleDto(string project, string client, string user) {
+        public TitleDto(string project, string client) {
             Project = project;
             Client = client;
+        }
+
+        public TitleDto(string user) {
+
             User = user;
+
         }
 
         public TitleDto() {
 
         }
         
-    }
-
-    public class TimeEntryTitleDto : TitleDto {
-
-        public string Task { get; set; }
-        public string TimeEntry { get; set; }
-
-        public TimeEntryTitleDto(string project, string client, string user, string task, string timeEntry) : base(project, client, user) {
-
-            Task = task;
-            TimeEntry = timeEntry;
-            
-        }
-
-        public TimeEntryTitleDto() {
-
-        }
-
     }
 
 }

@@ -3,9 +3,10 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Net;
 using TogglFrost.Core.Report;
+using TogglFrost.Core.Report.Dto;
 using TogglFrost.Utility;
 
-namespace TogglFrost.Core {
+namespace TogglFrost.Core.Report {
 
     public class TogglReportDataAccessor : TogglDataAccessor {
 
@@ -32,9 +33,7 @@ namespace TogglFrost.Core {
             if (workspaceCacheItem == null)
                 return null;
 
-            string url = SUMMARY_URL + "?" + AuthenticationQuery + $"&workspace_id={workspaceCacheItem.ID}&since={from.ToString("yyyy-MM-dd")}&until={to.ToString("yyyy-MM-dd")}";
-
-            WebRequest webRequest = CreateRequest(url);
+            WebRequest webRequest = CreateRequest(SUMMARY_URL, new ReportRequestParameters(UserAgent, workspaceCacheItem.ID));
 
             ReadHttpResponseResult result = webRequest.ReadHttpResponse();
 
@@ -42,19 +41,7 @@ namespace TogglFrost.Core {
 
                 JObject jObj = JObject.Parse(result.Content);
 
-                JArray jArr = jObj["data"] as JArray;
-
-                Summary summary = new Summary();
-
-                foreach (JToken token in jArr) {
-
-                    //TimeEntry entry = CreateTimeEnty(token);
-                    //summary.AddTimeEntry(entry);
-
-                    TimeEntry entry = token.ToObject<TimeEntry>();
-                    summary.AddTimeEntry(entry);
-
-                }
+                SummaryDto summaryDto = jObj.ToObject<SummaryDto>();
 
 
             }
@@ -86,15 +73,6 @@ namespace TogglFrost.Core {
 
         }
 
-        private TimeEntry CreateTimeEnty(JToken jToken) {
-
-            TimeSpan timeSpan = TimeSpan.FromMilliseconds(Convert.ToInt32(jToken["time"]));
-
-            return new TimeEntry {
-                Time = timeSpan
-            };
-
-        }
 
     }
 
